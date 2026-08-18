@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.hotel.dto.HotelDto;
 import com.hotel.entity.Hotel;
+import com.hotel.exception.ResourceNotFoundException;
 import com.hotel.mapper.HotelMapper;
 import com.hotel.repository.HotelRepository;
 
@@ -28,7 +29,7 @@ public class HotelServiceImpl implements HotelService {
 
 	@Override
 	public HotelDto getHotelById(Long id) {
-		Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new RuntimeException("Hotel does not exist"));
+		Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel does not exist"));
 		return HotelMapper.mapToHotelDto(hotel);
 	}
 
@@ -41,10 +42,9 @@ public class HotelServiceImpl implements HotelService {
 	@Override
 	public HotelDto updateHotel(Long id , HotelDto hotelDto) {
 		Hotel hotel = hotelRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Hotel does not exist"));
+				.orElseThrow(() -> new ResourceNotFoundException("Hotel does not exist"));
 
 		hotel.setName(hotelDto.name());
-		hotel.setRating(hotelDto.rating());
 		hotel.setCity(hotelDto.city());
 
 		Hotel updatedhotel = hotelRepository.save(hotel);
@@ -55,7 +55,7 @@ public class HotelServiceImpl implements HotelService {
 	@Override
 	public void deleteHotel(Long id) {
 		if (!hotelRepository.existsById(id)) {
-			throw new RuntimeException("Hotel does not exist");
+			throw new ResourceNotFoundException("Hotel does not exist");
 		}
 		hotelRepository.deleteById(id);
 	}
