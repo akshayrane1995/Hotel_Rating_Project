@@ -1,12 +1,14 @@
 package com.user.service;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.user.dto.UserDto;
 import com.user.entity.User;
+import com.user.exception.ResourceNotFoundException;
 import com.user.mapper.UserMapper;
 import com.user.repository.UserRepository;
 
@@ -28,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto getUserById(Long id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("user does not exist"));
+		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("user does not exist"));
 		return UserMapper.maptoUserDto(user);
 	}
 
@@ -41,11 +43,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto updateUser(Long id, UserDto userDto) {
 
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User does not exist"));
+		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
 		user.setName(userDto.name());
 		user.setEmail(userDto.email());
-		user.setPassword(userDto.password());
+//		user.setPassword(userDto.password());
 		
 		User updatedUser = userRepository.save(user);
 		return UserMapper.maptoUserDto(updatedUser);
@@ -54,7 +56,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void deleteUser(Long id) {
 		if(!userRepository.existsById(id)) {
-			throw new RuntimeException("User does not exist");
+			throw new ResourceNotFoundException("User does not exist");
 		}
 		userRepository.deleteById(id);
 	}
