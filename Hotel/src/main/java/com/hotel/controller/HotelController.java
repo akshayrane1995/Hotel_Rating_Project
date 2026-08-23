@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hotel.dto.HotelDto;
 import com.hotel.service.HotelService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/hotel")
 public class HotelController {
@@ -27,7 +29,7 @@ public class HotelController {
 	}
 
 	@PostMapping("/create")
-	public ResponseEntity<HotelDto> createHotel(@RequestBody HotelDto hotelDto) {
+	public ResponseEntity<HotelDto> createHotel(@Valid @RequestBody HotelDto hotelDto) {
 		HotelDto saveHotel = hotelService.createHotel(hotelDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saveHotel);
 	}
