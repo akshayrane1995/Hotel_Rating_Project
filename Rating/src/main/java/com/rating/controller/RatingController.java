@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rating.dto.RatingDto;
 import com.rating.service.RatingService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/rating")
 public class RatingController {
@@ -27,7 +29,7 @@ public class RatingController {
 	}
 	
 	@PostMapping("/create")
-	public ResponseEntity<RatingDto> createRating(@RequestBody RatingDto ratingDto){
+	public ResponseEntity<RatingDto> createRating(@Valid @RequestBody RatingDto ratingDto){
 		RatingDto saveRating = ratingService.createRating(ratingDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saveRating);
 	}
@@ -45,7 +47,7 @@ public class RatingController {
 	}
 	
 	@PutMapping("/{id}/update")
-	public ResponseEntity<RatingDto> updateRating(@PathVariable Long id  ,@RequestBody RatingDto ratingDto){
+	public ResponseEntity<RatingDto> updateRating(@Valid @PathVariable Long id  ,@RequestBody RatingDto ratingDto){
 		RatingDto updatedRating = ratingService.updateRating(id,ratingDto);
 		return ResponseEntity.ok(updatedRating);
 	}
