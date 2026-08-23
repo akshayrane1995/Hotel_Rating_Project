@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.user.dto.UserDto;
 import com.user.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -27,7 +29,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/create")
-	public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
+	public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto){
 		UserDto saveUser = userService.createUser(userDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saveUser);
 	}
