@@ -1,13 +1,15 @@
 package com.rating.exception;
 
 import java.time.LocalDateTime;
-
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+
 
 
 @ControllerAdvice
@@ -38,4 +40,20 @@ public class GlobalExceptionHandler {
 
  		return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
  	}
+ 	
+ 	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorDetails> handleValidationException(MethodArgumentNotValidException exception,
+			WebRequest webRequest) {
+
+		String message = exception.getBindingResult()
+				.getFieldErrors()
+				.stream()
+				.map(error -> error.getField() + ": " + error.getDefaultMessage())
+				.collect(Collectors.joining(", "));
+
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), message, webRequest.getDescription(false),
+				"VALIDATION_ERROR");
+
+		return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+	}
 }
