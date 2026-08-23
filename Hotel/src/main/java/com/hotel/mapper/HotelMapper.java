@@ -9,7 +9,6 @@ public class HotelMapper {
 		  Hotel hotel = new Hotel(
 				  hotelDto.id(),
 				  hotelDto.name(),
-				  hotelDto.rating(),
 				  hotelDto.city()
 				  );
 		  return hotel;
@@ -20,7 +19,6 @@ public class HotelMapper {
 		HotelDto hotelDto = new HotelDto(
 				hotel.getId(),
 				hotel.getName(),
-				hotel.getRating(),
 				hotel.getCity()
 		);
 		
