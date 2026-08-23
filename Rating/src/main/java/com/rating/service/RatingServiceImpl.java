@@ -1,10 +1,11 @@
 package com.rating.service;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.rating.client.HotelServiceClient;
-import com.rating.dto.HotelDto;
+import com.rating.client.UserServiceClient;
 import com.rating.dto.RatingDto;
 import com.rating.entity.Rating;
 import com.rating.exception.ResourceNotFoundException;
@@ -18,19 +19,21 @@ public class RatingServiceImpl implements RatingService {
 
 	private RatingRepository ratingRepository;
 	private HotelServiceClient hotelServiceClient;
+	private UserServiceClient userServiceClient;
 
-	public RatingServiceImpl(RatingRepository ratingRepository, HotelServiceClient hotelServiceClient) {
+	public RatingServiceImpl(RatingRepository ratingRepository, HotelServiceClient hotelServiceClient,
+			UserServiceClient userServiceClient) {
 		this.ratingRepository = ratingRepository;
 		this.hotelServiceClient = hotelServiceClient;
+		this.userServiceClient = userServiceClient;
 	}
 
 	@Override
 	public RatingDto createRating(RatingDto ratingDto) {
-		try {
-			HotelDto hotel = hotelServiceClient.getHotelById(ratingDto.hotelId());
-		} catch (FeignException.NotFound e) {
-			throw new ResourceNotFoundException("Hotel does not exist with id:" + ratingDto.hotelId());
-		}
+		
+		validateHotel(ratingDto.hotelId());
+		validateUser(ratingDto.userId());
+		
 		Rating rating = RatingMapper.mapToRating(ratingDto);
 		Rating saveRating = ratingRepository.save(rating);
 		return RatingMapper.mapToRatingDto(saveRating);
@@ -39,7 +42,8 @@ public class RatingServiceImpl implements RatingService {
 
 	@Override
 	public RatingDto getRatingById(Long id) {
-		Rating rating = ratingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Rating does not exist"));
+		Rating rating = ratingRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Rating does not exist"));
 		return RatingMapper.mapToRatingDto(rating);
 	}
 
@@ -51,8 +55,12 @@ public class RatingServiceImpl implements RatingService {
 
 	@Override
 	public RatingDto updateRating(Long id, RatingDto ratingDto) {
-		Rating rating = ratingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Rating does not exist"));
-
+		Rating rating = ratingRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Rating does not exist"));
+		
+		 validateHotel(ratingDto.hotelId());
+		 validateUser(ratingDto.userId());
+		
 		rating.setRating(ratingDto.rating());
 		rating.setUserId(ratingDto.userId());
 		rating.setHotelId(ratingDto.hotelId());
@@ -71,4 +79,19 @@ public class RatingServiceImpl implements RatingService {
 		ratingRepository.deleteById(id);
 	}
 
+	private void validateHotel(Long hotelId) {
+		try {
+			hotelServiceClient.getHotelById(hotelId);
+		} catch (FeignException.NotFound e) {
+			throw new ResourceNotFoundException("Hotel does not exist with id: " + hotelId);
+		}
+	}
+
+	private void validateUser(Long userId) {
+		try {
+			userServiceClient.getUserById(userId);
+		} catch (FeignException.NotFound e) {
+			throw new ResourceNotFoundException("User does not exist with id: " + userId);
+		}
+	}
 }
