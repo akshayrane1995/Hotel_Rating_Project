@@ -4,8 +4,10 @@ import java.util.List;
 
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.user.dto.UserCreateDto;
 import com.user.dto.UserDto;
 import com.user.entity.User;
 import com.user.exception.ResourceNotFoundException;
@@ -16,14 +18,17 @@ import com.user.repository.UserRepository;
 public class UserServiceImpl implements UserService {
 
 	private UserRepository userRepository;
+	private PasswordEncoder passwordEncoder;
 
-	public UserServiceImpl(UserRepository userRepository) {
+	public UserServiceImpl(UserRepository userRepository , PasswordEncoder passwordEncoder ) {
 		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
-	public UserDto createUser(UserDto userDto) {
-		User user = UserMapper.mapToUser(userDto);
+	public UserDto createUser(UserCreateDto userCreateDto) {		
+		User user = UserMapper.mapToUser(userCreateDto);
+		user.setPassword(passwordEncoder.encode(userCreateDto.password()));
 		User saveuser = userRepository.save(user);
 		return UserMapper.maptoUserDto(saveuser);
 	}
@@ -47,7 +52,6 @@ public class UserServiceImpl implements UserService {
 
 		user.setName(userDto.name());
 		user.setEmail(userDto.email());
-//		user.setPassword(userDto.password());
 		
 		User updatedUser = userRepository.save(user);
 		return UserMapper.maptoUserDto(updatedUser);
