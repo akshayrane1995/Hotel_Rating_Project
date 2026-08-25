@@ -2,11 +2,12 @@ package com.user.service;
 
 import java.util.List;
 
+import com.user.dto.UserCreateDto;
 import com.user.dto.UserDto;
 
 public interface UserService {
 
-	UserDto createUser(UserDto userDto);
+	UserDto createUser(UserCreateDto userCreateDto);
 
 	UserDto getUserById(Long id);
 
