@@ -30,6 +30,21 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
     
+    @ExceptionHandler(RatingAlreadyExistsException.class)
+    public ResponseEntity<ErrorDetails> handleRatingAlreadyExistsException(
+    		RatingAlreadyExistsException exception,
+            WebRequest webRequest) {
+
+        ErrorDetails errorDetails = new ErrorDetails(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                webRequest.getDescription(false),
+                "RATING_ALREADY_EXISTS"
+        );
+
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+    
     // handle generic exception
  	@ExceptionHandler(Exception.class)
  	public ResponseEntity<ErrorDetails> handleGenericException(Exception exception, WebRequest webRequest) {
