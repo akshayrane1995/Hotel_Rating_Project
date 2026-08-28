@@ -6,4 +6,5 @@ import com.rating.entity.Rating;
 
 public interface RatingRepository extends JpaRepository<Rating, Long>{
 
+	boolean existsByUserIdAndHotelId(Long userId, Long hotelId);
 }
