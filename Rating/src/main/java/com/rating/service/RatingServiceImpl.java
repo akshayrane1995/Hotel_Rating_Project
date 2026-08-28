@@ -2,12 +2,14 @@ package com.rating.service;
 
 import java.util.List;
 
+
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.rating.client.HotelServiceClient;
 import com.rating.client.UserServiceClient;
 import com.rating.dto.RatingDto;
 import com.rating.entity.Rating;
+import com.rating.exception.RatingAlreadyExistsException;
 import com.rating.exception.ResourceNotFoundException;
 import com.rating.mapper.RatingMapper;
 import com.rating.repository.RatingRepository;
@@ -30,10 +32,16 @@ public class RatingServiceImpl implements RatingService {
 
 	@Override
 	public RatingDto createRating(RatingDto ratingDto) {
-		
+
 		validateHotel(ratingDto.hotelId());
 		validateUser(ratingDto.userId());
-		
+
+		boolean alreadyRated = ratingRepository.existsByUserIdAndHotelId(ratingDto.userId(), ratingDto.hotelId());
+
+		if (alreadyRated) {
+			throw new RatingAlreadyExistsException("User has already rated this hotel");
+		}
+
 		Rating rating = RatingMapper.mapToRating(ratingDto);
 		Rating saveRating = ratingRepository.save(rating);
 		return RatingMapper.mapToRatingDto(saveRating);
@@ -57,13 +65,11 @@ public class RatingServiceImpl implements RatingService {
 	public RatingDto updateRating(Long id, RatingDto ratingDto) {
 		Rating rating = ratingRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Rating does not exist"));
-		
-		 validateHotel(ratingDto.hotelId());
-		 validateUser(ratingDto.userId());
-		
+
+		validateHotel(ratingDto.hotelId());
+		validateUser(ratingDto.userId());
+
 		rating.setRating(ratingDto.rating());
-		rating.setUserId(ratingDto.userId());
-		rating.setHotelId(ratingDto.hotelId());
 		rating.setFeedback(ratingDto.feedback());
 
 		Rating updatedrating = ratingRepository.save(rating);
