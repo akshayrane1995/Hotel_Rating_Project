@@ -1,12 +1,8 @@
 package com.rating.service;
 
 import java.util.List;
-
-
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import com.rating.client.HotelServiceClient;
-import com.rating.client.UserServiceClient;
 import com.rating.dto.RatingDto;
 import com.rating.entity.Rating;
 import com.rating.exception.RatingAlreadyExistsException;
@@ -14,27 +10,22 @@ import com.rating.exception.ResourceNotFoundException;
 import com.rating.mapper.RatingMapper;
 import com.rating.repository.RatingRepository;
 
-import feign.FeignException;
-
 @Service
 public class RatingServiceImpl implements RatingService {
 
 	private RatingRepository ratingRepository;
-	private HotelServiceClient hotelServiceClient;
-	private UserServiceClient userServiceClient;
+	private ServiceValidation serviceValidation;
 
-	public RatingServiceImpl(RatingRepository ratingRepository, HotelServiceClient hotelServiceClient,
-			UserServiceClient userServiceClient) {
+	public RatingServiceImpl(RatingRepository ratingRepository, ServiceValidation serviceValidation) {
 		this.ratingRepository = ratingRepository;
-		this.hotelServiceClient = hotelServiceClient;
-		this.userServiceClient = userServiceClient;
+		this.serviceValidation = serviceValidation;
 	}
 
 	@Override
 	public RatingDto createRating(RatingDto ratingDto) {
 
-		validateHotel(ratingDto.hotelId());
-		validateUser(ratingDto.userId());
+		serviceValidation.validateHotel(ratingDto.hotelId());
+		serviceValidation.validateUser(ratingDto.userId());
 
 		boolean alreadyRated = ratingRepository.existsByUserIdAndHotelId(ratingDto.userId(), ratingDto.hotelId());
 
@@ -66,9 +57,6 @@ public class RatingServiceImpl implements RatingService {
 		Rating rating = ratingRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Rating does not exist"));
 
-		validateHotel(ratingDto.hotelId());
-		validateUser(ratingDto.userId());
-
 		rating.setRating(ratingDto.rating());
 		rating.setFeedback(ratingDto.feedback());
 
@@ -83,21 +71,5 @@ public class RatingServiceImpl implements RatingService {
 			throw new ResourceNotFoundException("Rating does not exist");
 		}
 		ratingRepository.deleteById(id);
-	}
-
-	private void validateHotel(Long hotelId) {
-		try {
-			hotelServiceClient.getHotelById(hotelId);
-		} catch (FeignException.NotFound e) {
-			throw new ResourceNotFoundException("Hotel does not exist with id: " + hotelId);
-		}
-	}
-
-	private void validateUser(Long userId) {
-		try {
-			userServiceClient.getUserById(userId);
-		} catch (FeignException.NotFound e) {
-			throw new ResourceNotFoundException("User does not exist with id: " + userId);
-		}
 	}
 }
