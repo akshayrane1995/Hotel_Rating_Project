@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.rating.dto.HotelDto;
 
 
-@FeignClient(name = "hotel-service" , url = "${hotel.service.url}")
+//@FeignClient(name = "hotel-service" , url = "${hotel.service.url}")
+@FeignClient(name = "HOTEL-SERVICE")
 public interface HotelServiceClient {
 	
 	@GetMapping("/hotel/id/{id}")

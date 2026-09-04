@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.rating.dto.UserDto;
 
-@FeignClient(name = "user-service", url = "${user.service.url}")
+//@FeignClient(name = "user-service", url = "${user.service.url}")
+@FeignClient(name = "USER-SERVICE")
 public interface UserServiceClient {
 
     @GetMapping("/user/id/{id}")
