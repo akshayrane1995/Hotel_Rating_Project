@@ -1,4 +1,13 @@
 services:
+  service-registry:
+    build:
+      context: ./ServiceRegistry
+      dockerfile: Dockerfile
+    container_name: service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - hotel-network
 
   user-service:
     build: ./User
